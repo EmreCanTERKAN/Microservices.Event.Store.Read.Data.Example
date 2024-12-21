@@ -34,7 +34,7 @@ namespace Product.Application.Controllers
             {
                 eventStoreService.GenerateEventData(newProductAddedEvent)
             });
-            return RedirectToAction("Index");
+            return RedirectToAction("CreateProduct");
         }
     }
 }
