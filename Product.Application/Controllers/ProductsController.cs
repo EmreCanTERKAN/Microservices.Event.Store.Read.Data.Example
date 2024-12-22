@@ -1,15 +1,18 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver;
 using Product.Application.Models.ViewModels;
 using Shared.Events;
 using Shared.Services.Abstractions;
 
 namespace Product.Application.Controllers
 {
-    public class ProductsController(IEventStoreService eventStoreService) : Controller
+    public class ProductsController(IEventStoreService eventStoreService, IMongoDbService mongoDbService) : Controller
     {
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var productsCollection = mongoDbService.GetCollection<Shared.Models.Product>("products");
+            var products = await (await productsCollection.FindAsync(_ => true)).ToListAsync();
+            return View(products);
         }
 
 
@@ -26,7 +29,7 @@ namespace Product.Application.Controllers
                 ProductId = Guid.NewGuid().ToString(),
                 InitialCount = model.Count,
                 InitialPrice = model.Price,
-                IsAvailable = model.IsAvailabe,
+                IsAvailable = model.IsAvailable,
                 ProductName = model.ProductName
             };
 
@@ -34,7 +37,31 @@ namespace Product.Application.Controllers
             {
                 eventStoreService.GenerateEventData(newProductAddedEvent)
             });
-            return RedirectToAction("CreateProduct");
+            return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> Edit(string productId)
+        {
+            var productCollection = mongoDbService.GetCollection<Shared.Models.Product>("products");
+            var product = await (await productCollection.FindAsync(p => p.Id == productId)).FirstOrDefaultAsync();
+            return View(product);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CountUpdate()
+        {
+            return null;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PriceUpdate()
+        {
+            return null;
+        }
+        [HttpPost]
+        public async Task<IActionResult> AvailableUpdate()
+        {
+            return null;
         }
     }
 }

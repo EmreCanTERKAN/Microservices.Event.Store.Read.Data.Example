@@ -19,7 +19,7 @@ namespace Product.Event.Handler.Service.Services
                 object @event = JsonSerializer.Deserialize(resolvedEvent.Event.Data.ToArray(), Assembly.Load("Shared").GetTypes().FirstOrDefault(t => t.Name == eventType));
 
                 //mongodb collection
-                var productCollection = mongoDbService.GetCollection<Models.Product>("products");
+                var productCollection = mongoDbService.GetCollection<Shared.Models.Product>("products");
 
                 switch (@event)
                 {
